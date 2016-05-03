@@ -7,11 +7,11 @@ if ENV['CLEAN'].present?
   Attachment.destroy_all
 end
 
-agent = User.where(email: 'agent@getbrimir.com').first_or_create({ email: 'agent@getbrimir.com', password: 'testtest', password_confirmation: 'testtest' })
+agent = User.where(email: 'agent@thefool.it').first_or_create({ email: 'agent@thefool.it', password: 'testtest', password_confirmation: 'testtest' })
 agent.agent = true
 agent.save!
 
-customer = User.where(email: 'customer@getbrimir.com').first_or_create({ email: 'customer@getbrimir.com', password: 'testtest', password_confirmation: 'testtest' })
+customer = User.where(email: 'customer@thefool.it').first_or_create({ email: 'customer@thefool.it', password: 'testtest', password_confirmation: 'testtest' })
 customer.save!
 
 labels = [

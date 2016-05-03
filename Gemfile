@@ -36,11 +36,11 @@ group :test do
 end
 
 # Optional PostgreSQL for production
-gem 'pg', group: :postgresql
+#gem 'pg', group: :postgresql
 # Optional MySQL for production
 gem 'mysql2', group: :mysql
 # Optional SQLite for development
-gem 'sqlite3', group: :sqlite
+#gem 'sqlite3', group: :sqlite
 
 # authentication
 gem 'devise'
@@ -84,3 +84,11 @@ gem 'fancybox2-rails', '~> 0.2.8'
 
 # gravatar for user avatar images
 gem 'gravatar_image_tag'
+
+# Use Capistrano for deployment
+gem 'unicorn', require: false
+gem 'capistrano', '~> 3.4.0'
+gem 'capistrano-rails'
+gem 'capistrano-bundler'
+gem 'capistrano-rvm'
+gem 'capistrano3-unicorn'
