@@ -2,7 +2,7 @@
 lock '3.4.1'
 
 set :scm,                         :git
-set :repo_url,                    'git@github.com:thefoolsrl/brimir.git'
+set :repo_url,                    'git@github.com:barvaz/brimir.git'
 set :ssh_options,                 {user: 'deployer', forward_agent: true}
 
 set :stages,                      %w(production staging)
