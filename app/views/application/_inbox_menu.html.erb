@@ -37,6 +37,9 @@
   <%= active_elem_if :a, params[:status] == 'closed',
        href: tickets_path(status: 'closed') do %>
     <%= status_icon 'closed' %><%= t(:closed_tickets) %>
+    <span class="right heading-six bubble pls prs">
+      <%= Ticket.viewable_by(current_user).closed.count %>
+    </span>
   <% end %>
 </li>
 <li>
