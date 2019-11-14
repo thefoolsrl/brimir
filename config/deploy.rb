@@ -14,7 +14,7 @@ set :group,                       'deployer'
 set :format,                      :pretty
 set :log_level,                   :debug
 
-set :linked_files,                %w{config/database.yml config/secrets.yml config/unicorn.rb}
+set :linked_files,                %w{config/database.yml config/secrets.yml config/unicorn.rb config/secrets.yml}
 set :linked_dirs,                 %w{bin log sockets tmp/pids pids tmp/sockets data}
 
 set :rvm_ruby_version,            '2.3.0@ticketing'
