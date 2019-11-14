@@ -182,7 +182,14 @@ class TicketsController < ApplicationController
         return
       end
       using_hook = true # we assume different policies to create a ticket when we receive an email
-      @ticket = TicketMailer.receive(send("raw_#{params[:hook].underscore}"))
+      method = nil
+      case params[:hook].to_s.underscore
+      when 'post_mail'
+        method = 'post_mail'
+      when 'mailgun'
+        method = 'mailgun'
+      end
+      @ticket = TicketMailer.receive(send("raw_#{method}"))
     else
       using_hook = false
       @ticket = Ticket.new(ticket_params)

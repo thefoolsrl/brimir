@@ -1,4 +1,5 @@
 class Api::V1::SessionsController < ActionController::Base
+  protect_from_forgery with: :exception
 
   def create
     if params[:email].present? && params[:password].present?
