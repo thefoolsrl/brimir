@@ -91,3 +91,4 @@ coverage
 # vim artifacts
 **.swp
 config/credentials.yml
+config/initializers/mail.rb
