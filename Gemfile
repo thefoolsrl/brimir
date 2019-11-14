@@ -119,9 +119,10 @@ gem 'react-rails', "~> 1.10"
 #   gem 'capistrano-bundler', require: false
 # end
 
+gem 'unicorn', require: false
+
 # Use Capistrano for deployment
 group :development do
-  gem 'unicorn', require: false
   gem 'capistrano', '~> 3.4.0'
   gem 'capistrano-rails'
   gem 'capistrano-bundler'
