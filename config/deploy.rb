@@ -2,7 +2,7 @@
 lock '3.4.1'
 
 set :scm,                         :git
-set :repo_url,                    'git@github.com:barvaz/brimir.git'
+set :repo_url,                    'git@github.com:thefoolsrl/brimir.git'
 set :ssh_options,                 {user: 'deployer', forward_agent: true}
 
 set :stages,                      %w(production staging)
@@ -17,7 +17,7 @@ set :log_level,                   :debug
 set :linked_files,                %w{config/database.yml config/secrets.yml config/unicorn.rb config/initializers/mail.rb config/secrets.yml}
 set :linked_dirs,                 %w{bin log sockets tmp/pids pids tmp/sockets data}
 
-set :rvm_ruby_version,            '2.3.0@ticketing'
+set :rvm_ruby_version,            '2.4.9@ticketing'
 set :rvm_type,                    :auto
 
 namespace :deploy do
