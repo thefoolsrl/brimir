@@ -364,6 +364,7 @@ DEPENDENCIES
   jbuilder (~> 2.6)
   jquery-rails (~> 4.2)
   jquery-visibility-rails
+  json (~> 2.2.0)
   letter_opener (~> 1.4)
   mail (~> 2.6, != 2.7.0)
   mysql2 (~> 0.4)

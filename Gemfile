@@ -55,6 +55,8 @@ gem 'mysql2', "~> 0.4", group: :mysql
 # Optional SQLite for development
 gem 'sqlite3', "~> 1.3", group: :sqlite
 
+gem 'json', "~> 2.2.0"
+
 # authentication
 gem 'devise', "~> 4.2"
 gem 'devise_ldap_authenticatable', "~> 0.8"
