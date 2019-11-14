@@ -33,6 +33,9 @@ group :development do
 
   # open sent emails in the browser
   gem 'letter_opener', "~> 1.4"
+
+  gem 'brakeman', "~> 4.5"
+  gem 'bundler-audit'
 end
 
 group :test do
@@ -123,3 +126,8 @@ group :development do
   gem 'capistrano-rvm'
   gem 'capistrano3-unicorn'
 end
+
+#security fixes
+
+#rails-html-sanitizer 1.0.3 is vulnerable (CVE-2018-3741). Upgrade to rails-html-sanitizer 1.0.4
+gem 'rails-html-sanitizer', '1.0.4'
