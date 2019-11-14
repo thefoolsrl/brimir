@@ -31,6 +31,7 @@
 @import "topbar";
 @import "forms";
 @import "inbox";
+@import "trix";
 
 /* --- Table --- */
 
@@ -64,6 +65,10 @@ table thead tr th{
 
 
 /* --- Uncategorized --- */
+
+.user-signed-in {
+  background: #30363e;
+}
 
 .label{
 	text-transform: uppercase;
@@ -125,6 +130,13 @@ ul.accordion{
 	list-style-type: none;
 	margin-left: 0;
 }
+.split-off-ticket{
+  font-size: 90%;
+}
+
+a.pull-right{
+  margin-left: 15px;
+}
 
 .output{
 	line-height: 1.45;
@@ -171,4 +183,8 @@ pre {
 
 .internal-reply li > a, .internal-reply .row {
 	background-color: #fff6d9 !important;
+}
+
+.status-reply li > a, .status-reply .row {
+	background-color: #eaeef0 !important;
 }

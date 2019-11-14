@@ -2,8 +2,6 @@ development:
   adapter: mysql2
   encoding: utf8
   reconnect: false
-#  database: poirot-2016-02-15
-#  database: poirot_tvshows_dump
   database: fool_ticketing
   pool: 5
   username: root

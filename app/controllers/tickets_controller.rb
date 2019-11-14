@@ -15,11 +15,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class TicketsController < ApplicationController
+  include TimeHelper
   include HtmlTextHelper
   include TicketsStrongParams
   include ActionView::Helpers::SanitizeHelper # dependency of HtmlTextHelper
 
-  before_filter :authenticate_user!, except: [:create, :new]
+  MAIL_KEY = Digest::SHA3.hexdigest(Rails.application.secrets.secret_key_base, 256).freeze
+  MAIL_HOOKS = %w(post-mail mailgun).freeze
+
+  before_action :authenticate_user!, except: [:create, :new]
+  before_action :current_tenant, only: [:update, :create, :new]
   load_and_authorize_resource :ticket, except: :create
   skip_authorization_check only: :create
 
@@ -27,7 +32,12 @@ class TicketsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: :create, if: 'request.format.json?'
 
   def show
-    @agents = User.agents
+    @users = User.actives
+
+    # first time seeing this ticket?
+    @ticket.mark_read current_user if @ticket.is_unread? current_user
+
+    @agents = User.agents.actives
 
     draft = @ticket.replies
         .where('user_id IS NULL OR user_id = ?', current_user.id)
@@ -42,7 +52,7 @@ class TicketsController < ApplicationController
       @reply = draft
     else
       @reply = @ticket.replies.new(user: current_user)
-      @reply.reply_to = @replies.select{ |r| !r.internal? }.last || @ticket
+      @reply.reply_to = @replies.select{ |r| !r.internal? && !r.kind_of?(StatusReply) && !r.kind_of?(SystemReply) }.last || @ticket
       @reply.set_default_notifications!
     end
 
@@ -66,7 +76,7 @@ class TicketsController < ApplicationController
   end
 
   def index
-    @agents = User.agents
+    @agents = User.agents.actives
 
     params[:status] ||= 'open' unless params[:user_id]
 
@@ -76,7 +86,7 @@ class TicketsController < ApplicationController
       .filter_by_assignee_id(params[:assignee_id])
       .filter_by_user_id(params[:user_id])
       .ordered
-    
+
     if params[:status] != 'merged'
       @tickets = @tickets.where.not(status: Ticket.statuses[:merged])
     end
@@ -111,6 +121,24 @@ class TicketsController < ApplicationController
 
         end
 
+        # change ticket subject
+        if @ticket.previous_changes.include? :subject
+          old_subject = @ticket.previous_changes[:subject].first
+          new_subject = @ticket.previous_changes[:subject].last
+          StatusReply.create_from_subject_change(@ticket, old_subject, new_subject, current_user)
+        end
+
+        # status replies
+        if @tenant.notify_client_when_ticket_is_assigned_or_closed
+          if !@ticket.assignee.nil?
+            if @ticket.previous_changes.include? :assignee_id
+              StatusReply.create_from_assignment(@ticket, current_user).try(:notification_mails).try(:each, &:deliver_now)
+            elsif @ticket.previous_changes.include? :status
+              StatusReply.create_from_status_change(@ticket, current_user).try(:notification_mails).try(:each, &:deliver_now)
+            end
+          end
+        end
+
         format.html {
           redirect_to @ticket, notice: I18n::translate(:ticket_updated)
         }
@@ -132,55 +160,133 @@ class TicketsController < ApplicationController
   end
 
   def new
-    @ticket = Ticket.new
+    @agents = User.agents.actives
 
-    unless current_user.nil?
-      @ticket.user = current_user
+    if !@tenant.ticket_creation_is_open_to_the_world? &&
+          current_user.nil?
+      render status: :forbidden, text: t(:access_denied)
+    else
+      @ticket = Ticket.new
+      unless current_user.nil?
+        @ticket.user = current_user
+      end
+      @email_addresses = EmailAddress.verified.ordered
     end
-
-    @email_addresses = EmailAddress.verified.ordered
   end
 
   def create
-    if params[:format] == 'json'
-      @ticket = TicketMailer.receive(params[:message])
+    # the hook that is triggered when receiving an email.
+    if params[:hook]
+      unless Devise.secure_compare(params[:mail_key], MAIL_KEY)
+        render status: :forbidden, text: t(:access_denied)
+        return
+      end
+      using_hook = true # we assume different policies to create a ticket when we receive an email
+      @ticket = TicketMailer.receive(send("raw_#{params[:hook].underscore}"))
     else
+      using_hook = false
       @ticket = Ticket.new(ticket_params)
     end
 
-    if !@ticket.nil? && @ticket.save
-      NotificationMailer.incoming_message(@ticket, params[:message])
-    end
+    if !@tenant.ticket_creation_is_open_to_the_world? &&
+          current_user.nil? && !using_hook
+      render status: :forbidden, text: t(:access_denied)
+    elsif can_create_a_ticket(using_hook) &&
+        (@ticket.is_a?(Reply) || @ticket.save_with_label(params[:label]))
+      notify_incoming @ticket
 
-    respond_to do |format|
-      format.html do
+      if @ticket.is_a?(Ticket)
+        send_system_replies_when_needed
+      end
 
-        if !@ticket.nil? && @ticket.valid?
-
+      respond_to do |format|
+        format.json { render json: @ticket, status: :created }
+        format.html {
           if current_user.nil?
+            flash.now[:notice] = I18n::translate(:ticket_added_public)
             render 'create'
           else
             redirect_to ticket_url(@ticket), notice: I18n::translate(:ticket_added)
           end
-
-        else
+        }
+      end
+    else
+      respond_to do |format|
+        format.html {
           @email_addresses = EmailAddress.verified.ordered
+          @agents = User.agents.actives
           render 'new'
-        end
-
+        }
+        format.json {
+          if @ticket.nil?
+            render json: {}, status: :created  # bounce mail handled correctly
+          else
+            render json: @ticket, status: :unprocessable_entity
+          end
+        }
       end
-
-      format.json do
-        if @ticket.nil?
-          render json: {}, status: :created  # bounce mail handled correctly
-        elsif @ticket.valid?
-          render json: @ticket, status: :created
-        else
-          render json: @ticket, status: :unprocessable_entity
-        end
-      end
-
-      format.js { render }
     end
+  end
+
+  protected
+
+  def can_create_a_ticket(using_hook)
+    if @ticket.nil? || !@ticket.valid?
+      flash.now[:alert] = I18n::translate(:form_validation_error)
+      false
+    # relax policy for requests coming from emails
+    elsif using_hook
+      true
+    # strict policy for requests coming from the application
+    else
+      if Ticket.recaptcha_keys_present? && current_user.nil?
+        if verify_recaptcha
+          true
+        else
+          flash.now[:alert] = I18n::translate(:captcha_error)
+          false
+        end
+      else
+        true
+      end
+    end
+  end
+
+  def current_tenant
+    @tenant = Tenant.current_tenant
+  end
+
+  def notify_incoming(ticket)
+    NotificationMailer.incoming_message ticket, params[:message]
+  end
+
+  def send_system_replies_when_needed
+    if @tenant.notify_client_when_ticket_is_created
+      # we should always have a (default) template when option is selected
+      template = EmailTemplate.by_kind('ticket_received').active.first
+      unless template.nil?
+        @reply = SystemReply.create_from_assignment(@ticket, template)
+        @reply.try(:notification_mails).try(:each, &:deliver_now)
+      end
+    end
+  end
+
+  private
+
+  # Raw incoming mail from post-mail script
+  def raw_post_mail
+    base64_message = ((params[:base64] == true) || !(params[:message][0,64] =~ /^([A-Za-z0-9+\/]{4})*([A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}==)$/).nil?)
+    base64_message ? Base64.decode64(params[:message].strip) : params[:message]
+  end
+
+  # Raw incoming mail from Mailgun
+  def raw_mailgun
+    response = RestClient::Resource.new(
+      params['message-url'],
+      user: 'api',
+      password: Rails.application.secrets.mailgun_private_api_key,
+      headers: { accept: 'message/rfc2822' }
+    ).get
+    JSON.parse(response.body)['body-mime']
   end
 end

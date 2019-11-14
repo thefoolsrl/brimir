@@ -31,15 +31,15 @@ class RepliesControllerTest < ActionController::TestCase
     assert_no_difference 'ActionMailer::Base.deliveries.size' do
       assert_no_difference 'Reply.count' do
 
-        user = users(:alice)
-        user.signature = nil
-        user.save
-
-        post :create, reply: {
+        post :create, params: {
+          reply: {
             content: '',
             ticket_id: @ticket.id,
             notified_user_ids: [users(:bob).id],
+          }
         }
+
+        assert_response :success # should get a form instead of a 500
       end
     end
   end
@@ -48,10 +48,12 @@ class RepliesControllerTest < ActionController::TestCase
 
     # do we send a mail?
     assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count do
-      post :create, reply: {
+      post :create, params: {
+        reply: {
           content: '<br><br><p><strong>this is in bold</strong></p>',
           ticket_id: @ticket.id,
           notified_user_ids: User.agents.pluck(:id),
+        }
       }
     end
 
@@ -59,7 +61,7 @@ class RepliesControllerTest < ActionController::TestCase
 
     # html in the html part
     assert_match '<br><br><p><strong>this is in bold</strong></p>',
-        mail.html_part.body.decoded
+      mail.html_part.body.decoded
 
     # no html in the text part
     assert_match "\n\nthis is in bold\n", mail.text_part.body.decoded
@@ -71,7 +73,7 @@ class RepliesControllerTest < ActionController::TestCase
     assert_match 'multipart/alternative', mail.content_type
 
     # new reply link in body
-    assert_match(I18n.translate(:view_new_reply), mail.text_part.body.decoded)
+    assert_match(I18n.translate(:view_reply), mail.text_part.body.decoded)
 
     # generated message id stored in db
     assert_not_nil assigns(:reply).message_id
@@ -80,14 +82,16 @@ class RepliesControllerTest < ActionController::TestCase
   test 'reply should have attachments' do
 
     assert_difference 'Attachment.count', 2 do
-      post :create, reply: {
-            content: '**this is in bold**',
-            ticket_id: @ticket.id,
-            notified_user_ids: [users(:bob).id],
-            attachments_attributes: {
-              '0' => { file: fixture_file_upload('attachments/default-testpage.pdf') },
-              '1' => { file: fixture_file_upload('attachments/default-testpage.pdf') }
-            }
+      post :create, params: {
+        reply: {
+          content: '**this is in bold**',
+          ticket_id: @ticket.id,
+          notified_user_ids: [users(:bob).id],
+          attachments_attributes: {
+            '0': { file: fixture_file_upload('attachments/default-testpage.pdf') },
+            '1': { file: fixture_file_upload('attachments/default-testpage.pdf') }
+          }
+        }
       }
     end
   end
@@ -99,23 +103,27 @@ class RepliesControllerTest < ActionController::TestCase
 
     # do we send a mail?
     assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count do
-      post :create, reply: {
+      post :create, params: {
+        reply: {
           content: 'test',
           ticket_id: @ticket.id,
           notified_user_ids: [users(:bob).id, users(:alice).id]
+        }
       }
     end
     mail = ActionMailer::Base.deliveries.last
-    assert_equal users(:alice).email, mail.header_fields.select { |field| field.name == 'smtp-envelope-to' }.last.value
+    assert_equal [users(:alice).email], mail.smtp_envelope_to
   end
 
   test 'should re-open ticket' do
     @ticket.status = 'closed'
     @ticket.save
 
-    post :create, reply: {
+    post :create, params: {
+      reply: {
         content: 're-open please',
         ticket_id: @ticket.id,
+      }
     }
 
     @ticket.reload
@@ -127,7 +135,9 @@ class RepliesControllerTest < ActionController::TestCase
     @reply.save!
 
     @reply.reload
-    get :show, id: @reply.id, format: :eml
+    get :show, params: {
+      id: @reply.id, format: :eml
+    }
     assert_response :success
   end
 
