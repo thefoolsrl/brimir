@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # filter rules applied to a ticket when it is created
-class Rule < ActiveRecord::Base
+class Rule < ApplicationRecord
   validates :filter_field, presence: true
 
   enum filter_operation: [:contains, :equals]
@@ -42,9 +42,11 @@ class Rule < ActiveRecord::Base
       ticket.labels << label unless ticket.labels.include?(label)
 
     elsif action_operation == 'notify_user'
-      user = User.where(email: action_value).first_or_create
+      user = User.where(email: action_value.downcase.strip).first_or_create
 
-      ticket.notified_users << user unless user.nil?
+      if !user.nil? && !ticket.notified_users.include?(user)
+        ticket.notified_users << user
+      end
 
     elsif action_operation == 'change_status'
       ticket.status = action_value.downcase

@@ -23,6 +23,18 @@ module HtmlTextHelper
         .gsub(/<!--[^>]*-->/, '')
   end
 
+  def match_values_inside_brackets_and_replace_with_variable_assignments(content, options={})
+    # grab everything between the brackets
+    matches = content.to_enum(:scan, /(?<=\[)([^\]]+)(?=\])/).map {$&}
+    # replace the brackets with options
+    matches.each do |match|
+      variable = options[match.to_sym]
+      content = content.gsub(/\[(#{match}?)\]/, variable) if variable
+    end
+    # return content
+    content
+  end
+
   def html_to_text(content)
     content = sanitize_html(content).gsub(%r{(<br ?/?>|</p>)}, "\n")
     # to_str for Rails #12672
@@ -34,18 +46,19 @@ module HtmlTextHelper
     CGI.escapeHTML(content).gsub("\n", '<br />')
   end
 
-  def sanitize_html(content, attachments = [])
+  def sanitize_html(content, attachments = {})
+    result = content
+
+    attachments.each do |content_id,url|
+      result.gsub!(/src="cid:#{content_id}"/, "src=\"#{url}\"")
+    end
+
     result = sanitize(
-        strip_inline_style(content),
+        strip_inline_style(result),
         tags:       %w( a b br code div em i img li ol p pre table td tfoot
                         thead tr span strong ul font ),
         attributes: %w( src href style color )
     )
-
-    attachments.each do |attachment|
-      result.gsub!(/src="cid:#{attachment.content_id}"/,
-        "src=\"#{attachment.file.url(:original)}\"")
-    end
 
     result.html_safe
   end

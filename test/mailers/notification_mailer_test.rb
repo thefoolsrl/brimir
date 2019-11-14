@@ -19,6 +19,7 @@ require 'test_helper'
 class NotificationMailerTest < ActionMailer::TestCase
 
   test 'should notify assignee of new ticket' do
+    Tenant.current_domain = tenants(:main).domain
     ticket = tickets(:problem)
 
     assert_difference 'ActionMailer::Base.deliveries.size' do
@@ -26,11 +27,13 @@ class NotificationMailerTest < ActionMailer::TestCase
     end
 
     mail = ActionMailer::Base.deliveries.last
-    assert_equal ticket.message_id, mail.message_id
+    assert_equal "<#{ticket.message_id}>", mail['Message-ID'].to_s
     assert_equal email_addresses(:brimir).formatted, mail['From'].to_s
+    assert_equal 'support@test.host', mail['Return-Path'].to_s
   end
 
   test 'should notify user of new reply' do
+    Tenant.current_domain = tenants(:main).domain
     reply = replies(:solution)
 
     assert_difference 'ActionMailer::Base.deliveries.size' do
@@ -39,9 +42,52 @@ class NotificationMailerTest < ActionMailer::TestCase
 
     mail = ActionMailer::Base.deliveries.last
     assert_equal "<#{reply.ticket.message_id}>", mail['In-Reply-To'].to_s
-    assert_equal reply.message_id, mail.message_id
+    assert_equal "<#{reply.message_id}>", mail['Message-ID'].to_s
     assert_equal email_addresses(:brimir).formatted, mail['From'].to_s
+    assert_equal 'support@test.host', mail['Return-Path'].to_s
   end
+
+  test 'should notify user of account creation' do
+    user = users(:new_user)
+    template = email_templates(:active_user_welcome)
+    tenant = tenants(:main)
+
+    # user needs a one time plain password
+    user.password = 'testtest'
+
+    # Setting needs to be enabled
+    tenant.notify_user_when_account_is_created = true
+
+    assert_difference 'ActionMailer::Base.deliveries.size' do
+      NotificationMailer.new_account(user, template, tenant).deliver_now
+    end
+  end
+
+  test 'should not notify user of account creation' do
+    user = users(:new_user)
+    template = email_templates(:active_user_welcome)
+    tenant = tenants(:main)
+
+    # user needs a one time plain password
+    user.password = 'testtest'
+
+    # Setting needs to be enabled
+    tenant.notify_user_when_account_is_created = false
+
+    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+      NotificationMailer.new_account(user, template, tenant).deliver_now
+    end
+
+    tenant.notify_user_when_account_is_created = true
+    # template is inactive now
+    template = email_templates(:inactive_user_welcome)
+
+    assert_no_difference 'ActionMailer::Base.deliveries.size' do
+      NotificationMailer.new_account(user, template, tenant).deliver_now
+    end
+
+  end
+
 
   # Preventing infinite email loops
   test 'should not notify our own outgoing addresses' do
@@ -64,7 +110,25 @@ class NotificationMailerTest < ActionMailer::TestCase
     last = ActionMailer::Base.deliveries.count - 1
     while last >= first
       mail = ActionMailer::Base.deliveries[last]
-      assert_equal ticket.message_id, mail.message_id
+      assert_equal "<#{ticket.message_id}>", mail['Message-ID'].to_s
+      last -= 1
+    end
+  end
+
+  test 'should notify agents of new reply' do
+    Tenant.current_domain = tenants(:main).domain
+
+    reply = replies(:solution)
+
+    assert_difference 'ActionMailer::Base.deliveries.size', 2 do
+      NotificationMailer.incoming_message(reply, tickets(:problem))
+    end
+
+    first = ActionMailer::Base.deliveries.count - 2
+    last = ActionMailer::Base.deliveries.count - 1
+    while last >= first
+      mail = ActionMailer::Base.deliveries[last]
+      assert_equal "<#{reply.message_id}>", mail['Message-ID'].to_s
       last -= 1
     end
   end

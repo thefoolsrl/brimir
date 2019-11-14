@@ -1,5 +1,5 @@
-# Brimir is a helpdesk system that can be used to handle email support requests.
-# Copyright (C) 2012-2015 Ivaldi https://ivaldi.nl/
+# Brimir is a helpdesk system to handle email support requests.
+# Copyright (C) 2012-2016 Ivaldi https://ivaldi.nl/
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -13,11 +13,11 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+class Api::V1::EmailTemplatesController < Api::V1::ApplicationController
 
-require 'test_helper'
+  load_and_authorize_resource :email_template
 
-class AttachmentTest < ActiveSupport::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+  def show
+    render json: @email_template.to_json
+  end
 end

@@ -42,7 +42,7 @@ class Ability
   def customer(user)
     # customers can view replies where they were notified of
     can :read, Reply do |reply|
-      reply.notified_user_ids.include? user.id || reply.user_id == user.id
+      reply.notified_user_ids.include? user.id || reply.user_id == user.id || reply.kind_of?(StatusReply)
     end
     # customers can view their own replies
     can :read, Reply, user_id: user.id
@@ -69,6 +69,11 @@ class Ability
     # limited agents can view their own tickets, replies and attachments
     can [:create, :read], Reply, ticket: { user_id: user.id }
 
+    # agents can split off replies as tickets
+    can :split_off, Reply do |reply|
+      can?(:update, reply.ticket)
+    end
+
     # limited agents can edit their own account
     can :update, User, id: user.id
 
@@ -83,6 +88,8 @@ class Ability
       # at least one label_id overlap
       (reply.ticket.label_ids & user.label_ids).size > 0
     end
+
+    can :read, EmailTemplate
   end
 
   def agent(user)
@@ -93,6 +100,9 @@ class Ability
 
     # can view all replies
     can :read, Reply
+
+    # agents can split off replies as tickets
+    can :split_off, Reply
 
     # agents can edit all users
     can [:read, :create, :update], User
@@ -120,6 +130,9 @@ class Ability
     can :manage, Rule
     can :manage, EmailAddress
     can :manage, Label
+    can :manage, EmailTemplate
+
+    can :create, :email_imports
 
     can :update, Tenant, id: Tenant.current_tenant.id
   end
