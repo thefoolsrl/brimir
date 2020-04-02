@@ -17,7 +17,7 @@ set :log_level,                   :debug
 set :linked_files,                %w{config/database.yml config/secrets.yml config/unicorn.rb config/initializers/mail.rb config/secrets.yml}
 set :linked_dirs,                 %w{bin log sockets tmp/pids pids tmp/sockets data}
 
-set :rvm_ruby_version,            '2.5.3@ticketing'
+set :rvm_ruby_version,            '2.5.8@ticketing'
 set :rvm_type,                    :auto
 
 namespace :deploy do
