@@ -15,7 +15,7 @@ class AddSecurityFieldsToUsers < ActiveRecord::Migration[5.1]
     end
     add_index :old_passwords, [:password_archivable_type, :password_archivable_id], name: 'index_password_archivable'
     add_index :users, :password_changed_at
-    User.update_all(last_activity_at: Time.now - 2.month.ago)
+    User.update_all(last_activity_at: Time.now - 2.month)
   end
 
   def down
