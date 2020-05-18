@@ -17,6 +17,7 @@
 class User < ApplicationRecord
   devise Rails.application.config.devise_authentication_strategy, :recoverable,
     :rememberable, :trackable, :validatable,:omniauthable,
+    :password_expirable, :secure_validatable, :password_archivable,:expirable,
     omniauth_providers: [:google_oauth2]
 
   has_many :tickets, dependent: :destroy

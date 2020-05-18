@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181011140158) do
+ActiveRecord::Schema.define(version: 20200518080721) do
 
   create_table "attachments", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "attachable_id"
@@ -77,6 +77,15 @@ ActiveRecord::Schema.define(version: 20181011140158) do
     t.index ["notifiable_id", "notifiable_type", "user_id"], name: "unique_notification", unique: true
     t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable_type_and_notifiable_id"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "old_passwords", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "encrypted_password", null: false
+    t.string "password_archivable_type", null: false
+    t.integer "password_archivable_id", null: false
+    t.string "password_salt"
+    t.datetime "created_at"
+    t.index ["password_archivable_type", "password_archivable_id"], name: "index_password_archivable"
   end
 
   create_table "replies", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -213,7 +222,11 @@ ActiveRecord::Schema.define(version: 20181011140158) do
     t.integer "schedule_id"
     t.boolean "schedule_enabled", default: false
     t.boolean "active", default: true, null: false
+    t.datetime "password_changed_at"
+    t.datetime "last_activity_at"
+    t.datetime "expired_at"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["password_changed_at"], name: "index_users_on_password_changed_at"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["schedule_id"], name: "index_users_on_schedule_id"
   end
