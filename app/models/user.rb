@@ -16,16 +16,16 @@
 
 class User < ApplicationRecord
   devise Rails.application.config.devise_authentication_strategy, :recoverable,
-    :rememberable, :trackable, :validatable,:omniauthable,
-    :password_expirable, :secure_validatable, :password_archivable,:expirable,
-    omniauth_providers: [:google_oauth2]
+         :rememberable, :trackable, :validatable, :omniauthable,
+         :password_expirable, :secure_validatable, :password_archivable, :expirable,
+         omniauth_providers: [:google_oauth2]
 
   has_many :tickets, dependent: :destroy
   has_many :replies, dependent: :destroy
   has_many :labelings, as: :labelable, dependent: :destroy
   has_many :labels, through: :labelings
   has_many :assigned_tickets, class_name: 'Ticket',
-      foreign_key: 'assignee_id', dependent: :nullify
+           foreign_key: 'assignee_id', dependent: :nullify
   has_many :notifications, dependent: :destroy
 
   belongs_to :schedule, optional: true
@@ -47,11 +47,11 @@ class User < ApplicationRecord
   end
 
   scope :actives, -> {
-    where(active: true)
+    where(id: User.all.map { |u| u.id unless u.expired? })
   }
 
   scope :inactives, -> {
-    where(active: false)
+    where(id: User.all.map { |u| u.id if u.expired? })
   }
 
   scope :agents, -> {
@@ -100,7 +100,7 @@ class User < ApplicationRecord
   # notify only active agents
   def self.agents_to_notify
     User.agents
-        .where(notify: true).actives
+      .where(notify: true).actives
   end
 
   # Does the email address of this user belong to the ticket system
@@ -135,9 +135,5 @@ class User < ApplicationRecord
     if encrypted_password.blank?
       self.password = Devise.friendly_token.first(12)
     end
-  end
-
-  def active_for_authentication?
-      super and self.active
   end
 end
