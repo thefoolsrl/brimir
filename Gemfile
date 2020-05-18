@@ -17,10 +17,10 @@ gem 'jquery-visibility-rails'
 gem 'foundation_rails_helper', "~> 2.0"
 
 # to use debugger
-gem 'byebug', '~> 10.0', group: [:development, :test]
+gem 'byebug', '~> 11.0', group: [:development, :test]
 gem 'pry', "~> 0.11", group: [:development, :test]
 gem 'pry-rescue', '~> 1.4', group: [:development, :test]
-gem 'pry-byebug', "~> 3.4", group: [:development, :test]
+gem 'pry-byebug', "~> 3.9", group: [:development, :test]
 gem 'better_errors', "~> 2.1", group: [:development]
 gem 'binding_of_caller', "~> 0.7", group: [:development]
 # We need this to not break the test suite as `assigns` and `assert_template` have been remove and extracted to a gem in Rails 5
