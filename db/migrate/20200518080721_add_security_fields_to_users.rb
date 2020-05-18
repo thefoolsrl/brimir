@@ -1,5 +1,5 @@
 class AddSecurityFieldsToUsers < ActiveRecord::Migration[5.1]
-  def change
+  def up
     remove_column :users, :active
     change_table :users do |t|
       t.datetime :password_changed_at
@@ -15,5 +15,16 @@ class AddSecurityFieldsToUsers < ActiveRecord::Migration[5.1]
     end
     add_index :old_passwords, [:password_archivable_type, :password_archivable_id], name: 'index_password_archivable'
     add_index :users, :password_changed_at
+    User.update_all(last_activity_at: DateTime.now - 2.month.ago)
+  end
+
+  def down
+    add_column :users, :active, :boolean, default: true, null: false
+    User.all.map {|u| u.update(active: !u.expired?)}
+    remove_column :users, :password_changed_at
+    remove_column :users, :last_activity_at
+    remove_column :users, :expired_at
+    drop_table :old_passwords
+    remove_index :users, :password_changed_at
   end
 end
