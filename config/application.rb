@@ -24,7 +24,9 @@ module Brimir
       'Referrer-Policy' => 'No-referrer-when-downgrade',
       'X-XSS-Protection' => '1; mode=block',
       'X-Frame-Options' => 'DENY',
-      'X-Content-Type-Options' => 'nosniff'
+      'X-Content-Type-Options' => 'nosniff',
+      'Cache-Control' => 'no-cache, max-age=0',
+      'Expires' => '0'
     }
   end
 end

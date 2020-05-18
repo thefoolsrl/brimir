@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181011140158) do
+ActiveRecord::Schema.define(version: 20200518080721) do
 
   create_table "attachments", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "attachable_id"
@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 20181011140158) do
     t.datetime "updated_at"
     t.string "file_file_name"
     t.string "file_content_type"
-    t.integer "file_file_size"
+    t.bigint "file_file_size"
     t.datetime "file_updated_at"
     t.string "content_id"
     t.index ["attachable_id"], name: "index_attachments_on_attachable_id"
@@ -52,8 +52,8 @@ ActiveRecord::Schema.define(version: 20181011140158) do
 
   create_table "labelings", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "label_id"
-    t.integer "labelable_id"
     t.string "labelable_type"
+    t.integer "labelable_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["label_id", "labelable_id", "labelable_type"], name: "unique_labeling_label", unique: true
@@ -69,14 +69,23 @@ ActiveRecord::Schema.define(version: 20181011140158) do
   end
 
   create_table "notifications", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer "notifiable_id"
     t.string "notifiable_type"
+    t.integer "notifiable_id"
     t.integer "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["notifiable_id", "notifiable_type", "user_id"], name: "unique_notification", unique: true
     t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable_type_and_notifiable_id"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "old_passwords", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "encrypted_password", null: false
+    t.string "password_archivable_type", null: false
+    t.integer "password_archivable_id", null: false
+    t.string "password_salt"
+    t.datetime "created_at"
+    t.index ["password_archivable_type", "password_archivable_id"], name: "index_password_archivable"
   end
 
   create_table "replies", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -90,7 +99,7 @@ ActiveRecord::Schema.define(version: 20181011140158) do
     t.boolean "draft", default: false, null: false
     t.string "raw_message_file_name"
     t.string "raw_message_content_type"
-    t.integer "raw_message_file_size"
+    t.bigint "raw_message_file_size"
     t.datetime "raw_message_updated_at"
     t.boolean "internal", default: false, null: false
     t.string "type"
@@ -169,7 +178,7 @@ ActiveRecord::Schema.define(version: 20181011140158) do
     t.datetime "locked_at"
     t.string "raw_message_file_name"
     t.string "raw_message_content_type"
-    t.integer "raw_message_file_size"
+    t.bigint "raw_message_file_size"
     t.datetime "raw_message_updated_at"
     t.string "orig_to"
     t.string "orig_cc"
@@ -212,8 +221,11 @@ ActiveRecord::Schema.define(version: 20181011140158) do
     t.string "name"
     t.integer "schedule_id"
     t.boolean "schedule_enabled", default: false
-    t.boolean "active", default: true, null: false
+    t.datetime "password_changed_at"
+    t.datetime "last_activity_at"
+    t.datetime "expired_at"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["password_changed_at"], name: "index_users_on_password_changed_at"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["schedule_id"], name: "index_users_on_schedule_id"
   end
@@ -227,6 +239,7 @@ ActiveRecord::Schema.define(version: 20181011140158) do
   add_foreign_key "tenants", "email_templates"
   add_foreign_key "tickets", "email_addresses", column: "to_email_address_id"
   add_foreign_key "tickets", "users"
+  add_foreign_key "tickets", "users", column: "assignee_id"
   add_foreign_key "tickets", "users", column: "locked_by_id"
   add_foreign_key "users", "schedules"
 end

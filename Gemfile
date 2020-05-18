@@ -58,7 +58,9 @@ gem 'sqlite3', "~> 1.3", group: :sqlite
 gem 'json', "~> 1.8.5"
 
 # authentication
-gem 'devise', "~> 4.2"
+gem 'devise', "~> 4.6"
+gem 'devise-security', '~> 0.14'
+gem 'devise-pwned_password', "~> 0.1"
 gem 'devise_ldap_authenticatable', "~> 0.8"
 
 # 2.7.0 appears to have regressions that are fixed in 2.7.1

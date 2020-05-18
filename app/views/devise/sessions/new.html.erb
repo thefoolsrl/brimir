@@ -10,7 +10,7 @@
             <span class="prefix"><i class="fa fa-user"></i></span>
           </div>
           <div class="small-11 columns">
-            <%= f.email_field :email, label: false, placeholder: t(:email) %>
+            <%= f.email_field :email, label: false, placeholder: t(:email),input_html: { autocomplete: :off } %>
           </div>
         </div>
         <div class="row collapse">
