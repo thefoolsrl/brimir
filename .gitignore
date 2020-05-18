@@ -75,7 +75,6 @@ vendor/bundle
 # Capistrano deploy details
 config/deploy
 config/deploy.rb
-config/secrets.yml
 Capfile
 .capistrano
 
