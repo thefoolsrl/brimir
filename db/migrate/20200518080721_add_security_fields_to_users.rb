@@ -1,5 +1,6 @@
 class AddSecurityFieldsToUsers < ActiveRecord::Migration[5.1]
   def change
+    remove_column :users, :active
     change_table :users do |t|
       t.datetime :password_changed_at
       t.datetime :last_activity_at

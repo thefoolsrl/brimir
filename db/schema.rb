@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 20200518080721) do
     t.datetime "updated_at"
     t.string "file_file_name"
     t.string "file_content_type"
-    t.integer "file_file_size"
+    t.bigint "file_file_size"
     t.datetime "file_updated_at"
     t.string "content_id"
     t.index ["attachable_id"], name: "index_attachments_on_attachable_id"
@@ -52,8 +52,8 @@ ActiveRecord::Schema.define(version: 20200518080721) do
 
   create_table "labelings", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "label_id"
-    t.integer "labelable_id"
     t.string "labelable_type"
+    t.integer "labelable_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["label_id", "labelable_id", "labelable_type"], name: "unique_labeling_label", unique: true
@@ -69,8 +69,8 @@ ActiveRecord::Schema.define(version: 20200518080721) do
   end
 
   create_table "notifications", id: :integer, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.integer "notifiable_id"
     t.string "notifiable_type"
+    t.integer "notifiable_id"
     t.integer "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -99,7 +99,7 @@ ActiveRecord::Schema.define(version: 20200518080721) do
     t.boolean "draft", default: false, null: false
     t.string "raw_message_file_name"
     t.string "raw_message_content_type"
-    t.integer "raw_message_file_size"
+    t.bigint "raw_message_file_size"
     t.datetime "raw_message_updated_at"
     t.boolean "internal", default: false, null: false
     t.string "type"
@@ -178,7 +178,7 @@ ActiveRecord::Schema.define(version: 20200518080721) do
     t.datetime "locked_at"
     t.string "raw_message_file_name"
     t.string "raw_message_content_type"
-    t.integer "raw_message_file_size"
+    t.bigint "raw_message_file_size"
     t.datetime "raw_message_updated_at"
     t.string "orig_to"
     t.string "orig_cc"
@@ -221,7 +221,6 @@ ActiveRecord::Schema.define(version: 20200518080721) do
     t.string "name"
     t.integer "schedule_id"
     t.boolean "schedule_enabled", default: false
-    t.boolean "active", default: true, null: false
     t.datetime "password_changed_at"
     t.datetime "last_activity_at"
     t.datetime "expired_at"
@@ -240,6 +239,7 @@ ActiveRecord::Schema.define(version: 20200518080721) do
   add_foreign_key "tenants", "email_templates"
   add_foreign_key "tickets", "email_addresses", column: "to_email_address_id"
   add_foreign_key "tickets", "users"
+  add_foreign_key "tickets", "users", column: "assignee_id"
   add_foreign_key "tickets", "users", column: "locked_by_id"
   add_foreign_key "users", "schedules"
 end
