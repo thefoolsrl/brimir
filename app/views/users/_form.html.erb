@@ -13,6 +13,8 @@
 
         <%= f.text_field :name, tabindex: tabindex %>
 
+        <%= f.password_field :current_password, tabindex: tabindex %>
+
         <%= f.password_field :password, tabindex: tabindex %>
 
         <%= f.password_field :password_confirmation, tabindex: tabindex %>
@@ -20,8 +22,6 @@
         <% if can? :create, User %>
             <%= f.check_box :agent, label: t(:user_is_an_agent), tabindex: tabindex %>
         <% end %>
-
-        <%= f.check_box :active, label: t(:active), tabindex: tabindex %>
 
         <%= f.select :time_zone, @time_zones, {}, tabindex: tabindex %>
 
