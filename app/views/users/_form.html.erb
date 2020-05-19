@@ -16,9 +16,9 @@
         <%= f.password_field :current_password, tabindex: tabindex %>
 
         <%= f.password_field :password, tabindex: tabindex %>
-
-        <%= f.password_field :password_confirmation, tabindex: tabindex %>
-
+        <% if @user.persisted? %>
+          <%= f.password_field :password_confirmation, tabindex: tabindex %>
+        <% end %>
         <% if can? :create, User %>
             <%= f.check_box :agent, label: t(:user_is_an_agent), tabindex: tabindex %>
         <% end %>
