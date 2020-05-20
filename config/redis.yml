@@ -1,19 +1,19 @@
 development:
   host: localhost
   port: 6379
-  db: 0
+  db: 7
 
 staging:
   host: localhost
   port: 6379
-  db: 0
+  db: 7
 
 production:
   host: localhost
   port: 6379
-  db: 0
+  db: 7
 
 test:
   host: localhost
   port: 6379
-  db: 0
+  db: 7
