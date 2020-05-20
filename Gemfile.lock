@@ -390,7 +390,7 @@ DEPENDENCIES
   gravatar_image_tag (~> 1.2)
   http_accept_language (~> 2.1)
   jbuilder (~> 2.6)
-  jquery-rails (~> 4.2)
+  jquery-rails (>= 4.4.0)
   jquery-visibility-rails
   json (~> 1.8.5)
   letter_opener (~> 1.4)
