@@ -26,6 +26,8 @@ gem 'binding_of_caller', "~> 0.7", group: [:development]
 # We need this to not break the test suite as `assigns` and `assert_template` have been remove and extracted to a gem in Rails 5
 gem 'rails-controller-testing', group: [:test]
 gem 'redis', '3.3.3'
+gem 'redis-rails', "~> 5.0"
+gem 'redis-store', "~> 1.3"
 
 group :development do
   # Spring application pre-loader
