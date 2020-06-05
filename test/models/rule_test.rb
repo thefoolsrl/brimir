@@ -72,6 +72,8 @@ class RuleTest < ActiveSupport::TestCase
   test 'should assign user' do
     dummy = User.create({
       email: 'dummy@example.com',
+      password: 'Testtest123!!',
+      password_confirmation: 'Testtest123!!',
       agent: true,
       name: "dummy",
       signature: 'Greets, Dummy',
@@ -122,6 +124,7 @@ class RuleTest < ActiveSupport::TestCase
   test 'should set notify user' do
     dummy = User.create({
       email: 'dummy@example.com',
+      password: 'Testtest123!!',
       agent: true,
       name: "dummy",
       signature: 'Greets, Dummy',

@@ -21,8 +21,10 @@ class TicketsControllerTest < ActionController::TestCase
   setup do
     @ticket = tickets(:problem)
     # read_fixture doesn't work in ActionController::TestCase, so use File.new
+    User.create(email: 'frank@xxxx.com', password: 'Testtest123!!', password_confirmation: 'Testtest123!!')
     @simple_email = File.new('test/fixtures/ticket_mailer/simple').read
     @simple_base64_email = File.new('test/fixtures/ticket_mailer/simple_base64').read
+    User.create(email: 'foobar@test.com', password: 'Testtest123!!', password_confirmation: 'Testtest123!!')
     @mailgun_message_url = 'https://storage.mailgun.net/v3/domains/mg.test.com/messages/eyJwIjpmYWxzZSwiafI6IjJhZGNhMzkxLWVhMTItNDc4OS1iZjg5LTliNjQ1NDEyZWMyMCIsInMiOiJiYmFjNzc1YmIzIiwiYyI6InRhbmtiIn0='
   end
 
@@ -151,14 +153,14 @@ class TicketsControllerTest < ActionController::TestCase
     sign_in users(:alice)
     post :create, params: {
       ticket: {
-        from: 'test@test.nl',
+        from: users(:alice).email,
         name: 'Tester',
         content: 'Foobar',
         subject: 'Foobar',
       }
     }
     user = Ticket.last.user
-    assert_equal user.email, 'test@test.nl'
+    assert_equal user.email, users(:alice).email
     assert_equal user.name, 'Tester'
   end
 
@@ -179,7 +181,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count', 1 do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -193,7 +195,7 @@ class TicketsControllerTest < ActionController::TestCase
   end
 
   # SECOND
-  test 'should not create ticket when ivalid and captcha and signed in' do
+  test 'should not create ticket when invalid and captcha and signed in' do
     sign_in users(:alice)
 
     assert_no_difference 'ActionMailer::Base.deliveries.size', User.agents.count do
@@ -220,7 +222,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -257,7 +259,7 @@ class TicketsControllerTest < ActionController::TestCase
   test 'should create ticket when signed in and no captcha' do
     # we need these after the test
     secret_key = Recaptcha.configuration.secret_key
-    site_key  = Recaptcha.configuration.site_key
+    site_key = Recaptcha.configuration.site_key
 
     # set blank for this test
     Recaptcha.configuration.secret_key = ''
@@ -268,7 +270,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count', 1 do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -289,7 +291,7 @@ class TicketsControllerTest < ActionController::TestCase
   test 'should not create ticket when signed in and invalid and no captcha' do
     # we need these after the test
     secret_key = Recaptcha.configuration.secret_key
-    site_key  = Recaptcha.configuration.site_key
+    site_key = Recaptcha.configuration.site_key
 
     # set blank for this test
     Recaptcha.configuration.secret_key = ''
@@ -321,7 +323,7 @@ class TicketsControllerTest < ActionController::TestCase
   test 'should create ticket when not signed in and no captcha' do
     # we need these after the test
     secret_key = Recaptcha.configuration.secret_key
-    site_key  = Recaptcha.configuration.site_key
+    site_key = Recaptcha.configuration.site_key
 
     # set blank for this test
     Recaptcha.configuration.secret_key = ''
@@ -331,7 +333,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count', 1 do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -353,7 +355,7 @@ class TicketsControllerTest < ActionController::TestCase
   test 'should not create ticket when not signed in and no captcha' do
     # we need these after the test
     secret_key = Recaptcha.configuration.secret_key
-    site_key  = Recaptcha.configuration.site_key
+    site_key = Recaptcha.configuration.site_key
 
     # set blank for this test
     Recaptcha.configuration.secret_key = ''
@@ -556,7 +558,7 @@ class TicketsControllerTest < ActionController::TestCase
     Timecop.freeze(new_time)
 
     assert_equal new_time, Time.now
-    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count-1 do
+    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count - 1 do
       assert_difference 'Ticket.count' do
         post :create, params: {
           hook: 'post-mail',
@@ -592,7 +594,7 @@ class TicketsControllerTest < ActionController::TestCase
 
     assert_equal new_time, Time.now
 
-    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count-1 do
+    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count - 1 do
       assert_difference 'Ticket.count' do
         post :create, params: {
           hook: 'post-mail',
@@ -625,7 +627,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -652,7 +654,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -693,7 +695,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -733,7 +735,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -773,11 +775,11 @@ class TicketsControllerTest < ActionController::TestCase
 
     assert_equal new_time, Time.now
 
-    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count-1 do
+    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count - 1 do
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -810,11 +812,11 @@ class TicketsControllerTest < ActionController::TestCase
 
     assert_equal new_time, Time.now
 
-    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count-1 do
+    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count - 1 do
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -847,7 +849,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -875,7 +877,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -917,7 +919,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -959,7 +961,7 @@ class TicketsControllerTest < ActionController::TestCase
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -999,11 +1001,11 @@ class TicketsControllerTest < ActionController::TestCase
     Timecop.freeze(new_time)
 
     assert_equal new_time, Time.now
-    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count-1 do
+    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count - 1 do
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -1037,11 +1039,11 @@ class TicketsControllerTest < ActionController::TestCase
 
     assert_equal new_time, Time.now
 
-    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count-1 do
+    assert_difference 'ActionMailer::Base.deliveries.size', User.agents.count - 1 do
       assert_difference 'Ticket.count' do
         post :create, params: {
           ticket: {
-            from: 'test@test.nl',
+            from: users(:alice).email,
             content: @ticket.content,
             subject: @ticket.subject,
           }
@@ -1102,7 +1104,7 @@ class TicketsControllerTest < ActionController::TestCase
 
     # should have selected same outgoing address as original received
     assert_select 'option[selected="selected"]' +
-      "[value=\"#{email_addresses(:brimir).id}\"]"
+                    "[value=\"#{email_addresses(:brimir).id}\"]"
 
     # should contain this for internal note switch
     assert_select '[data-notified-users]'
@@ -1241,6 +1243,7 @@ class TicketsControllerTest < ActionController::TestCase
   end
 
   test 'should not notify when a bounce message is received' do
+    User.create(email: 'mailer-daemon@googlemail.com', password: 'Testtest123!!', password_confirmation: 'Testtest123!!')
     email = File.new('test/fixtures/ticket_mailer/bounce').read
 
     assert_no_difference 'ActionMailer::Base.deliveries.size' do
@@ -1333,7 +1336,7 @@ class TicketsControllerTest < ActionController::TestCase
     assert_difference 'Ticket.count' do
       post :create, params: {
         ticket: {
-          from: 'test@test.nl',
+          from: users(:alice).email,
           content: @ticket.content,
           subject: @ticket.subject,
         }

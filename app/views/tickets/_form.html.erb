@@ -5,9 +5,7 @@
 
   <h3><%= t(:new_ticket) %></h3>
 
-  <p>
-    <%= f.text_field :from, tabindex: tabindex %>
-  </p>
+  <%= f.hidden_field :from, value: current_user&.email, tabindex: tabindex %>
 
   <% if Tenant.current_tenant.ask_for_name %>
     <p>
@@ -25,7 +23,7 @@
   <% end %>
 
   <% if params[:label] %>
-    <input name="label" type="hidden" value="<%= params[:label] %>"
+    <input name="label" type="hidden" value="<%= params[:label] %>"/>
   <% end %>
 
   <p>

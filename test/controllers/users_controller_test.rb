@@ -50,7 +50,7 @@ class UsersControllerTest < ActionController::TestCase
     sign_in @alice
 
     put :update, params: {
-      id: @alice.id, user: { signature: 'Alice' }
+      id: @alice.id, user: { signature: 'Alice', current_password: 'Testtest123!!' }
     }
     assert_equal 'Alice', assigns(:user).signature
     assert_redirected_to users_url
@@ -61,7 +61,7 @@ class UsersControllerTest < ActionController::TestCase
 
     assert_no_difference 'User.agents.count' do
       put :update, params: {
-        id: @bob.id, user: { agent: true, signature: 'Bob' }
+        id: @bob.id, user: { agent: true, signature: 'Bob', current_password: 'Testtest123!!' }
       }
     end
   end
@@ -73,8 +73,8 @@ class UsersControllerTest < ActionController::TestCase
       post :create, params: {
         user: {
           email: 'harry@getbrimir.com',
-          password: 'testtest',
-          password_confirmation: 'testtest',
+          password: 'Testtest123!!',
+          password_confirmation: 'Testtest123!!',
           agent: true,
           signature: 'Harry'
         }
@@ -91,6 +91,7 @@ class UsersControllerTest < ActionController::TestCase
       patch :update, params: {
         id: @bob.id, user: {
           email: 'test@test.test',
+          current_password: 'Testtest123!!',
           label_ids: [labels(:bug).id]
         }
       }
@@ -113,8 +114,7 @@ class UsersControllerTest < ActionController::TestCase
         id: @bob.id, user: {
           email: 'test@test.test',
           label_ids: [labels(:bug).id],
-          password: 'testtest',
-          password_confirmation: 'testtest',
+          current_password: 'Testtest123!!',
         }
       }
     end
@@ -164,6 +164,7 @@ class UsersControllerTest < ActionController::TestCase
       patch :update, params: {
         id: @alice.id, user: {
           email: @alice.email,
+          current_password: 'Testtest123!!',
           schedule_enabled: true,
           schedule_attributes: {
             start: '08:00',

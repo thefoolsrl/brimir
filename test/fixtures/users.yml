@@ -1,5 +1,6 @@
 alice:
   email: alice@xxxx.com
+  encrypted_password: $2a$11$2minOCYvNq8zoQ.kJS9myOWxp588bwaljcskk7gfBdpGoC7o.C3wy #Testtest123!!
   agent: true
   signature: 'Greets, Alice'
   notify: true
@@ -9,12 +10,13 @@ alice:
 
 bob:
   email: bob@xxxx.com
-  encrypted_password: $2a$10$R4kIaHGeNs1ssPGxh7pT/ulEx.P3umqE9CJKQKpDYgXuLVI6DKC9i #testtest
+  encrypted_password: $2a$11$2minOCYvNq8zoQ.kJS9myOWxp588bwaljcskk7gfBdpGoC7o.C3wy #Testtest123!!
   authentication_token: blabla
   schedule: default
 
 charlie:
   email: charlie@xxxx.com
+  encrypted_password: $2a$11$2minOCYvNq8zoQ.kJS9myOWxp588bwaljcskk7gfBdpGoC7o.C3wy #Testtest123!!
   agent: true
   current_sign_in_at: <%= Time.now %> # this will add the new ticket/reply link to mails
   schedule_enabled: false
@@ -23,15 +25,18 @@ charlie:
 
 dave:
   email: dave@xxxx.com
+  encrypted_password: $2a$11$2minOCYvNq8zoQ.kJS9myOWxp588bwaljcskk7gfBdpGoC7o.C3wy #Testtest123!!
   current_sign_in_at: <%= Time.now %> # this will add the new ticket/reply link to mails
   schedule: default
 
 emile:
   email: ender@xxxx.com
+  encrypted_password: $2a$11$2minOCYvNq8zoQ.kJS9myOWxp588bwaljcskk7gfBdpGoC7o.C3wy #Testtest123!!
   locale: :fr
 
 new_user:
   name: dummy
   email: dummy@person.net
+  encrypted_password: $2a$11$2minOCYvNq8zoQ.kJS9myOWxp588bwaljcskk7gfBdpGoC7o.C3wy #Testtest123!!
   agent: false
   schedule: default

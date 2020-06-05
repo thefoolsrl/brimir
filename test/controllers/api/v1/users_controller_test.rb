@@ -24,7 +24,9 @@ class Api::V1::UsersControllerTest < ActionController::TestCase
       post :create, params: {
         auth_token: users(:alice).authentication_token,
         user: {
-        email: 'newuser@new.com'
+        email: 'newuser@new.com',
+        password: 'Testtest123!!',
+        password_confirmation: 'Testtest123!!'
         },
         format: :json
       }
