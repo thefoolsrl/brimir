@@ -26,7 +26,8 @@ module Brimir
       'X-Frame-Options' => 'DENY',
       'X-Content-Type-Options' => 'nosniff',
       'Cache-Control' => 'no-cache, max-age=0',
-      'Expires' => '0'
+      'Expires' => '0',
+      'Strict-Transport-Security' => 'max-age=15768000; preload'
     }
   end
 end

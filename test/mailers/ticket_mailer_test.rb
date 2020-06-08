@@ -19,6 +19,8 @@ require 'test_helper'
 class TicketMailerTest < ActionMailer::TestCase
 
   def setup
+    User.create(email: 'frank@xxxx.com', password: 'Testtest123!!', password_confirmation: 'Testtest123!!')
+    User.create(email: 'reply@address.com', password: 'Testtest123!!', password_confirmation: 'Testtest123!!')
     @simple_email = read_fixture('simple').join
   end
 
@@ -31,7 +33,7 @@ class TicketMailerTest < ActionMailer::TestCase
     assert_difference 'Ticket.count' do
 
       # account for user created
-      assert_difference 'User.count' do
+      assert_no_difference 'User.count' do
 
         TicketMailer.receive(@simple_email)
 
@@ -52,7 +54,7 @@ class TicketMailerTest < ActionMailer::TestCase
     # ticket created?
     assert_difference 'Ticket.count' do
       # user created?
-      assert_difference 'User.count' do
+      assert_no_difference 'User.count' do
         ticket = TicketMailer.receive(thread_start)
 
         # assign to first user
@@ -78,7 +80,7 @@ class TicketMailerTest < ActionMailer::TestCase
   end
 
   test 'email with attachments work' do
-
+    User.create(email: 'sem@xxxxxx.nl', password: 'Testtest123!!', password_confirmation: 'Testtest123!!')
     attachments = read_fixture('attachments').join
     assert_difference 'Ticket.count' do
       assert_difference 'Attachment.count', 2 do
@@ -88,7 +90,7 @@ class TicketMailerTest < ActionMailer::TestCase
 
   end
 
-  test 'email with unkown reply_to' do
+  test 'email with unknown reply_to' do
 
     unknown_reply_to = read_fixture('unknown_reply_to').join
     assert_difference 'Ticket.count' do
@@ -118,7 +120,7 @@ class TicketMailerTest < ActionMailer::TestCase
     assert_difference 'Ticket.count' do
 
       # account for user created
-      assert_difference 'User.count' do
+      assert_no_difference 'User.count' do
 
         TicketMailer.receive(email)
 
@@ -126,6 +128,6 @@ class TicketMailerTest < ActionMailer::TestCase
 
     end
 
-    assert_equal 'reply@address.com', User.last.email 
+    assert_equal 'reply@address.com', User.last.email
   end
 end

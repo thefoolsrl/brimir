@@ -168,6 +168,9 @@ class TicketsController < ApplicationController
     else
       @ticket = Ticket.new
       unless current_user.nil?
+        @ticket.from = current_user.email
+      end
+      unless current_user.nil?
         @ticket.user = current_user
       end
       @email_addresses = EmailAddress.verified.ordered
@@ -254,6 +257,9 @@ class TicketsController < ApplicationController
           false
         end
       else
+        unless current_user.nil?
+          @ticket.from = current_user.email
+        end
         true
       end
     end

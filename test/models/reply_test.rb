@@ -87,9 +87,9 @@ class ReplyTest < ActiveSupport::TestCase
     #
     # See also: https://github.com/ivaldi/brimir/issues/259
     #
-    agent = User.create! email: 'agent@example.com', agent: true
-    client1 = User.create! email: 'client1@example.com'
-    client2 = User.create! email: 'client2@example.com'
+    agent = User.create! email: 'agent@example.com', agent: true, password: 'Testtest123!!', password_confirmation: 'Testtest123!!'
+    client1 = User.create! email: 'client1@example.com', password: 'Testtest123!!', password_confirmation: 'Testtest123!!'
+    client2 = User.create! email: 'client2@example.com', password: 'Testtest123!!', password_confirmation: 'Testtest123!!'
 
     # client1 creates a ticket via email.
     ticket = Ticket.create from: 'client1@example.com', content: 'This is my problem'

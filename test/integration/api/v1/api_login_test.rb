@@ -7,7 +7,7 @@ class API::V1::ApiLoginTest < ActionDispatch::IntegrationTest
     host! "test.host"
 
     post '/api/v1/sessions', params: {
-      email: 'bob@xxxx.com', password: 'testtest'
+      email: 'bob@xxxx.com', password: 'Testtest123!!'
     }
 
     assert_response :success
