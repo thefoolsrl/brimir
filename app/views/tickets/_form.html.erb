@@ -5,10 +5,6 @@
 
   <h3><%= t(:new_ticket) %></h3>
 
-  <p>
-    <%= f.text_field :from, tabindex: tabindex %>
-  </p>
-
   <% if Tenant.current_tenant.ask_for_name %>
     <p>
       <%= f.text_field :name, tabindex: tabindex %>

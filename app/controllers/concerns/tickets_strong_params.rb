@@ -20,7 +20,6 @@ module TicketsStrongParams
   def ticket_params
     if !current_user.nil? && current_user.agent?
       params.require(:ticket).permit(
-        :from,
         :name,
         :to_email_address_id,
         :content,
@@ -32,10 +31,9 @@ module TicketsStrongParams
         :content_type,
         attachments_attributes: [
           :file
-        ])
+        ]).merge(from: current_user.email)
     else
       params.require(:ticket).permit(
-        :from,
         :name,
         :content,
         :subject,
