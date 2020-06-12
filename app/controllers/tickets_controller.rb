@@ -104,7 +104,7 @@ class TicketsController < ApplicationController
 
   def update
     respond_to do |format|
-      if @ticket.update_attributes(ticket_params)
+      if Ticket.validate_attachments(@ticket) && @ticket.update_attributes(ticket_params)
 
         # assignee set and not same as user who modifies
         if !@ticket.assignee.nil? && @ticket.assignee.id != current_user.id
@@ -195,6 +195,7 @@ class TicketsController < ApplicationController
       @ticket = TicketMailer.receive(send("raw_#{method}"))
     else
       using_hook = false
+
       @ticket = Ticket.new(ticket_params)
     end
 

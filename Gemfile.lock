@@ -352,6 +352,7 @@ GEM
     unicorn (5.5.5)
       kgio (~> 2.6)
       raindrops (~> 0.7)
+    virustotalx (1.1.0)
     warden (1.2.8)
       rack (>= 2.0.6)
     websocket-driver (0.6.5)
@@ -420,6 +421,7 @@ DEPENDENCIES
   trix (~> 0.10, >= 0.10.1)
   uglifier (~> 3.0.0)
   unicorn
+  virustotalx
   will_paginate (~> 3.1)
 
 BUNDLED WITH

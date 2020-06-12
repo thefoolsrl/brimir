@@ -181,7 +181,25 @@ class Ticket < ApplicationRecord
       !Recaptcha.configuration.secret_key.blank?
   end
 
+  def self.validate_attachments(model)
+    client = VirusTotalClient.new
+    model.attachments.each do |attachment|
+      unless client.analyze_file_path(attachment.file_file_name)
+        model.errors.add(:attachments, "Malicious file detected")
+        return false
+      end
+    end
+    true
+  end
+
+  def save
+    if self.class.validate_attachments(model)
+      super
+    end
+  end
   def save_with_label(label_name)
+    #check for malicious file
+    self.class.validate_attachments(model)
     if label_name
       label = Label.where(name: label_name).take
       if label

@@ -70,9 +70,9 @@ class NotificationMailer < ActionMailer::Base
       @user, @template, @domain = user, template, tenant.domain
 
       mail(
-        to: user.email,
-        from: tenant.from,
-        subject: I18n.t('new_account_subject')
+          to: user.email,
+          from: tenant.from,
+          subject: I18n.t('new_account_subject')
       )
     end
   end
@@ -89,12 +89,12 @@ class NotificationMailer < ActionMailer::Base
     # for bounces, we don't use aliases
     headers['Return-Path'] = Tenant.current_tenant.from
 
-    I18n.with_locale @user.locale  do
+    I18n.with_locale @user.locale do
       mail(
-        template_name: :ticket,
-        to: @user.email,
-        subject: "#{I18n::t(:new_ticket)}: #{@ticket.subject}",
-        from: @ticket.reply_from_address
+          template_name: :ticket,
+          to: @user.email,
+          subject: "#{I18n::t(:new_ticket)}: #{@ticket.subject}",
+          from: @ticket.reply_from_address
       )
     end
   end
@@ -118,15 +118,15 @@ class NotificationMailer < ActionMailer::Base
     displayed_to_field = @reply.notified_users.where(agent: false).pluck(:email)
     displayed_to_field = @user.email if displayed_to_field.empty?
 
-    message = I18n.with_locale @user.locale  do
+    message = I18n.with_locale @user.locale do
       subject = reply.ticket.subject
       subject = "#{I18n::t(:new_reply)}: #{subject}" if user.agent?
       mail(
-        template_name: :reply,
-        smtp_envelope_to: @user.email,
-        to: displayed_to_field,
-        subject: subject,
-        from: @reply.ticket.reply_from_address
+          template_name: :reply,
+          smtp_envelope_to: @user.email,
+          to: displayed_to_field,
+          subject: subject,
+          from: @reply.ticket.reply_from_address
       )
     end
     message.smtp_envelope_to = @user.email
@@ -140,12 +140,12 @@ class NotificationMailer < ActionMailer::Base
       headers['Message-ID'] = "<#{@ticket.message_id}>"
     end
 
-    I18n.with_locale @user.locale  do
+    I18n.with_locale @user.locale do
       mail(
-        template_name: :ticket,
-        to: @user.email,
-        subject: "#{I18n::t(:ticket_assigned)}: #{ticket.subject}",
-        from: @ticket.reply_from_address
+          template_name: :ticket,
+          to: @user.email,
+          subject: "#{I18n::t(:ticket_assigned)}: #{ticket.subject}",
+          from: @ticket.reply_from_address
       )
     end
   end
@@ -158,18 +158,18 @@ class NotificationMailer < ActionMailer::Base
         headers['Message-ID'] = "<#{@ticket.message_id}>"
       end
 
-      I18n.with_locale @user.locale  do
+      I18n.with_locale @user.locale do
         subject = I18n.t(:attribute_changed,
-          attribute: Ticket.human_attribute_name(attribute),
-          value: I18n.t(@ticket.send(attribute),
-            scope: "activerecord.attributes.ticket.#{attribute.to_s.pluralize}"
-          )
+                         attribute: Ticket.human_attribute_name(attribute),
+                         value: I18n.t(@ticket.send(attribute),
+                                       scope: "activerecord.attributes.ticket.#{attribute.to_s.pluralize}"
+                         )
         ).capitalize + ": #{@ticket.subject}"
         mail(
-          template_name: :ticket,
-          to: @user.email,
-          subject: subject,
-          from: @ticket.reply_from_address
+            template_name: :ticket,
+            to: @user.email,
+            subject: subject,
+            from: @ticket.reply_from_address
         )
       end
     end
@@ -198,7 +198,9 @@ class NotificationMailer < ActionMailer::Base
   end
 
   def add_attachments(ticket_or_reply)
+    client = VirusTotalClient.new
     ticket_or_reply.attachments.each do |at|
+      client.analyze_file_path!(at.file.path)
       attachments[at.file_file_name] = File.read(at.file.path)
     end
   end
