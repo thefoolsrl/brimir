@@ -12,21 +12,25 @@ class VirusTotalClient
   end
 
   def analyze_file(file)
+    return true if ["test", "development"].include?(Rails.env)
     id = @client.file.upload(File.expand_path(file))["data"]["id"]
     await_and_evaluate_id id
   end
 
   def analyze_file_path(file_path)
+    return true if ["test", "development"].include?(Rails.env)
     id = @client.file.upload(file_path)["data"]["id"]
     await_and_evaluate_id id
   end
 
   def analyze_file_path!(file_path)
+    return true if ["test", "development"].include?(Rails.env)
     id = @client.file.upload(file_path)["data"]["id"]
     raise VirusTotalException::ThreatFound unless await_and_evaluate_id id
   end
 
   def analyze_url(url)
+    return true if ["test", "development"].include?(Rails.env)
     id = @client.url.analyse(url)["data"]["id"]
     await_and_evaluate_id id
   end
