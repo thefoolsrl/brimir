@@ -41,7 +41,7 @@ module TicketsStrongParams
         :content_type,
         attachments_attributes: [
           :file
-        ])
+        ]).merge(from: current_user.email)
     end
   end
 
