@@ -1,7 +1,4 @@
-module VirusTotalException
-  class ThreatFound < StandardError
-  end
-end
+require 'virustotalx'
 
 class VirusTotalClient
   def initialize(malicious_threshold = 0, suspicious_threshold = 0, timeout = 20)
@@ -45,7 +42,7 @@ class VirusTotalClient
   def await_and_evaluate_id(id)
     sleep 2.seconds
     i = 0
-    no_timeout = -> {i < @timeout}
+    no_timeout = -> { i < @timeout }
     while @client.analysis.get(id)["data"]["attributes"]["status"] != "completed" || no_timeout.call
       sleep 10.seconds
       i += 1

@@ -16,32 +16,48 @@
 
 module TicketsStrongParams
   extend ActiveSupport::Concern
+
   protected
+
   def ticket_params
+    ok_agent_params = [
+      :name,
+      :to_email_address_id,
+      :content,
+      :subject,
+      :status,
+      :assignee_id,
+      :priority,
+      :message_id,
+      :content_type
+    ]
+
+    if Tenant.current_tenant.ticket_creation_is_open_to_the_world?
+      ok_agent_params = ok_agent_params.prepend(:from)
+    end
+
     if !current_user.nil? && current_user.agent?
       params.require(:ticket).permit(
-        :name,
-        :to_email_address_id,
-        :content,
-        :subject,
-        :status,
-        :assignee_id,
-        :priority,
-        :message_id,
-        :content_type,
+        *ok_agent_params,
         attachments_attributes: [
           :file
-        ]).merge(from: current_user.email)
+        ]).merge(from: current_user&.email)
     else
-      params.require(:ticket).permit(
+      ok_params = [
         :name,
         :content,
         :subject,
         :priority,
         :content_type,
+      ]
+      if Tenant.current_tenant.ticket_creation_is_open_to_the_world?
+        ok_params = ok_params.prepend(:from)
+      end
+      params.require(:ticket).permit(
+        *ok_params,
         attachments_attributes: [
           :file
-        ]).merge(from: current_user.email)
+        ])
     end
   end
 

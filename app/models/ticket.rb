@@ -20,7 +20,7 @@ class Ticket < ApplicationRecord
   include TicketMerge
 
   validates_presence_of :user_id
-
+  validates_with AttachmentValidator
   belongs_to :user, optional: false
   belongs_to :assignee, class_name: 'User', optional: true
   belongs_to :to_email_address, -> { EmailAddress.verified }, class_name: 'EmailAddress', optional: true
@@ -181,26 +181,28 @@ class Ticket < ApplicationRecord
       !Recaptcha.configuration.secret_key.blank?
   end
 
-  def self.validate_attachments(model)
-    client = VirusTotalClient.new
-    model.attachments.each do |attachment|
-      unless client.analyze_file_path(attachment.file_file_name)
-        model.errors.add(:attachments, "Malicious file detected")
-        return false
-      end
-    end
-    true
-  end
-
-  def save
-    if self.class.validate_attachments(self)
-      super
-    end
-  end
+  # def self.validate_attachments(model)
+  #   client = VirusTotalClient.new
+  #   model.attachments.each do |attachment|
+  #     unless client.analyze_file_path(attachment.file_file_name)
+  #       model.errors.add(:attachments, "Malicious file detected")
+  #       return false
+  #     end
+  #   end
+  #   true
+  # end
+  #
+  # def save(*args, &block)
+  #   if self.class.validate_attachments(self)
+  #     create_or_update(*args, &block)
+  #   end
+  # rescue ActiveRecord::RecordInvalid
+  #   false
+  # end
 
   def save_with_label(label_name)
     #check for malicious file
-    self.class.validate_attachments(self)
+    #self.class.validate_attachments(self)
     if label_name
       label = Label.where(name: label_name).take
       if label

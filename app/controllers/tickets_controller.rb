@@ -104,25 +104,24 @@ class TicketsController < ApplicationController
 
   def update
     respond_to do |format|
-      if Ticket.validate_attachments(@ticket) && @ticket.update_attributes(ticket_params)
+      if @ticket.update_attributes(ticket_params)
 
         # assignee set and not same as user who modifies
         if !@ticket.assignee.nil? && @ticket.assignee.id != current_user.id
-
-          if @ticket.previous_changes.include? :assignee_id
+          if @ticket.saved_change_to_assignee_id?
             NotificationMailer.assigned(@ticket).deliver_now
 
-          elsif @ticket.previous_changes.include? :status
+          elsif @ticket.saved_change_to_status?
             NotificationMailer.status_changed(@ticket).deliver_now
 
-          elsif @ticket.previous_changes.include? :priority
+          elsif @ticket.saved_change_to_priority?
             NotificationMailer.priority_changed(@ticket).deliver_now
           end
 
         end
 
         # change ticket subject
-        if @ticket.previous_changes.include? :subject
+        if @ticket.saved_change_to_subject?
           old_subject = @ticket.previous_changes[:subject].first
           new_subject = @ticket.previous_changes[:subject].last
           StatusReply.create_from_subject_change(@ticket, old_subject, new_subject, current_user)
@@ -131,9 +130,9 @@ class TicketsController < ApplicationController
         # status replies
         if @tenant.notify_client_when_ticket_is_assigned_or_closed
           if !@ticket.assignee.nil?
-            if @ticket.previous_changes.include? :assignee_id
+            if @ticket.saved_change_to_assignee_id?
               StatusReply.create_from_assignment(@ticket, current_user).try(:notification_mails).try(:each, &:deliver_now)
-            elsif @ticket.previous_changes.include? :status
+            elsif @ticket.saved_change_to_status?
               StatusReply.create_from_status_change(@ticket, current_user).try(:notification_mails).try(:each, &:deliver_now)
             end
           end

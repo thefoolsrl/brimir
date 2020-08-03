@@ -196,7 +196,7 @@ class TicketsControllerTest < ActionController::TestCase
 
   # SECOND
   test 'should not create ticket when invalid and captcha and signed in' do
-    sign_in users(:alice)
+    sign_in users(:new_user)
 
     assert_no_difference 'ActionMailer::Base.deliveries.size', User.agents.count do
       assert_no_difference 'Ticket.count' do
@@ -297,7 +297,7 @@ class TicketsControllerTest < ActionController::TestCase
     Recaptcha.configuration.secret_key = ''
     Recaptcha.configuration.site_key = ''
 
-    sign_in users(:alice)
+    sign_in users(:new_user)
     assert_no_difference 'ActionMailer::Base.deliveries.size' do
       assert_no_difference 'Ticket.count' do
         post :create, params: {
