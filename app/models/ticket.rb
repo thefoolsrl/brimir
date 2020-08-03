@@ -193,13 +193,14 @@ class Ticket < ApplicationRecord
   end
 
   def save
-    if self.class.validate_attachments(model)
+    if self.class.validate_attachments(self)
       super
     end
   end
+
   def save_with_label(label_name)
     #check for malicious file
-    self.class.validate_attachments(model)
+    self.class.validate_attachments(self)
     if label_name
       label = Label.where(name: label_name).take
       if label

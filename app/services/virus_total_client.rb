@@ -5,7 +5,7 @@ end
 
 class VirusTotalClient
   def initialize(malicious_threshold = 0, suspicious_threshold = 0, timeout = 20)
-    @client = VirusTotal::API.new(key: Rails.application.secrets[:virustotal_key])
+    @client = ::VirusTotal::API.new(key: Rails.application.secrets[:virustotal_key])
     @malicious_threshold = malicious_threshold
     @suspicious_threshold = suspicious_threshold
     @timeout = timeout
