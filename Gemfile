@@ -138,4 +138,4 @@ end
 #security fixes
 
 #rails-html-sanitizer 1.0.3 is vulnerable (CVE-2018-3741). Upgrade to rails-html-sanitizer 1.0.4
-gem 'rails-html-sanitizer', '1.0.4'
+gem 'rails-html-sanitizer', '1.3.0'
