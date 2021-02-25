@@ -32,16 +32,18 @@ module TicketsStrongParams
       :content_type
     ]
 
-    if Tenant.current_tenant.ticket_creation_is_open_to_the_world?
+    if !current_user.nil? #&& current_user.agent?
       ok_agent_params = ok_agent_params.prepend(:from)
-    end
-
-    if !current_user.nil? && current_user.agent?
+      if Tenant.current_tenant.ticket_creation_is_open_to_the_world?
+        unless params[:ticket][:from]
+          params[:ticket][:from] = current_user.email
+        end
+      end
       params.require(:ticket).permit(
         *ok_agent_params,
         attachments_attributes: [
           :file
-        ]).merge(from: current_user&.email)
+        ])
     else
       ok_params = [
         :name,

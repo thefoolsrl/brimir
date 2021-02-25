@@ -7,7 +7,7 @@ server '138.201.17.177', user: 'deployer', roles: %w{web app db}
 
 set :stage,                     'production'
 set :rails_env,                 'production'
-set :branch,                    'master'
+set :branch,                    ENV["REVISION"] || 'master' #17cea369a1b2f48c5da553f1c09b891f241de7ac
 
 set :application,                 'ticketing'
 set :deploy_to,                   '/home/deployer/apps/ticketing'

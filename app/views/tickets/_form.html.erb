@@ -5,6 +5,14 @@
 
   <h3><%= t(:new_ticket) %></h3>
 
+  <% if Tenant.current_tenant.ticket_creation_is_open_to_the_world? %>
+  <p>
+    <%= f.text_field :from, value: @current_user&.email, tabindex: tabindex %>
+  </p>
+  <% else %>
+    <%= f.hidden_field :from, value: @current_user&.email %>
+  <% end %>
+
   <% if Tenant.current_tenant.ask_for_name %>
     <p>
       <%= f.text_field :name, tabindex: tabindex %>

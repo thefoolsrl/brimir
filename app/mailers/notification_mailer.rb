@@ -198,9 +198,9 @@ class NotificationMailer < ActionMailer::Base
   end
 
   def add_attachments(ticket_or_reply)
-    client = VirusTotalClient.new
+    #client = VirusTotalClient.new
     ticket_or_reply.attachments.each do |at|
-      client.analyze_file_path!(at.file.path)
+      #client.analyze_file_path!(at.file.path)
       attachments[at.file_file_name] = File.read(at.file.path)
     end
   end

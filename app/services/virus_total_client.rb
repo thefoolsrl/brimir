@@ -44,10 +44,14 @@ class VirusTotalClient
     i = 0
     no_timeout = -> { i < @timeout }
     while @client.analysis.get(id)["data"]["attributes"]["status"] != "completed" || no_timeout.call
+      puts "STATUS: #{@client.analysis.get(id)["data"]["attributes"]["status"]}"
+      puts 'sleeping'
       sleep 10.seconds
       i += 1
     end
     return false unless no_timeout.call
-    evaluate(@client.analysis.get(id)["data"]["attributes"])
+    evaluation = evaluate(@client.analysis.get(id)["data"]["attributes"])
+    puts "EVALUATION RESULT #{evaluation}"
+    evaluation
   end
 end

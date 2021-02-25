@@ -20,7 +20,11 @@ class Ticket < ApplicationRecord
   include TicketMerge
 
   validates_presence_of :user_id
-  validates_with AttachmentValidator
+  #validates_format_of :from, with: ->(ticket) { URI::MailTo::EMAIL_REGEXP.match?(ticket.from) }, on: :create
+  validates :from,
+            format: { with: URI::MailTo::EMAIL_REGEXP, message: "From invalid"  }#, on: :create
+
+  #validates_with AttachmentValidator, on: :create
   belongs_to :user, optional: false
   belongs_to :assignee, class_name: 'User', optional: true
   belongs_to :to_email_address, -> { EmailAddress.verified }, class_name: 'EmailAddress', optional: true

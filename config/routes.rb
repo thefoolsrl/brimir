@@ -6,15 +6,13 @@ Brimir::Application.routes.draw do
     get :tickets, to: 'tickets#index'
   end
 
-  authenticate :user do
-    namespace :tickets do
-      resource :deleted, only: :destroy, controller: :deleted
-      resource :selected, only: :update, controller: :selected
-    end
+  namespace :tickets do
+    resource :deleted, only: :destroy, controller: :deleted
+    resource :selected, only: :update, controller: :selected
+  end
 
-    resources :tickets, except: [:destroy, :edit] do
-      resource :lock, only: [:destroy, :create], module: :tickets
-    end
+  resources :tickets, except: [:destroy, :edit] do
+    resource :lock, only: [:destroy, :create], module: :tickets
   end
 
   post "/:hook/:mail_key/tickets",

@@ -23,6 +23,7 @@ class TicketsController < ApplicationController
   MAIL_KEY = Digest::SHA3.hexdigest(Rails.application.secrets.secret_key_base, 256).freeze
   MAIL_HOOKS = %w(post-mail mailgun).freeze
 
+  before_action :authenticate_user_if_tenant_is_closed!, only: [:create, :new]
   before_action :authenticate_user!, except: [:create, :new]
   before_action :current_tenant, only: [:update, :create, :new]
   load_and_authorize_resource :ticket, except: :create
@@ -194,10 +195,8 @@ class TicketsController < ApplicationController
       @ticket = TicketMailer.receive(send("raw_#{method}"))
     else
       using_hook = false
-
       @ticket = Ticket.new(ticket_params)
     end
-
     if !@tenant.ticket_creation_is_open_to_the_world? &&
           current_user.nil? && !using_hook
       render status: :forbidden, text: t(:access_denied)
@@ -285,6 +284,12 @@ class TicketsController < ApplicationController
   end
 
   private
+
+  def authenticate_user_if_tenant_is_closed!
+    unless current_tenant.ticket_creation_is_open_to_the_world?
+      authenticate_user!
+    end
+  end
 
   # Raw incoming mail from post-mail script
   def raw_post_mail
