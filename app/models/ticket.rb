@@ -24,7 +24,7 @@ class Ticket < ApplicationRecord
   validates :from,
             format: { with: URI::MailTo::EMAIL_REGEXP, message: "From invalid"  }#, on: :create
 
-  #validates_with AttachmentValidator, on: :create
+  validates_with AttachmentValidator, on: :create
   belongs_to :user, optional: false
   belongs_to :assignee, class_name: 'User', optional: true
   belongs_to :to_email_address, -> { EmailAddress.verified }, class_name: 'EmailAddress', optional: true
